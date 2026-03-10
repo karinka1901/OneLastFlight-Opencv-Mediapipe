@@ -9,7 +9,7 @@ One Last Flight is a small and simple Python game where you help a little sparro
 
 The goal is to fly as far as possible before the sparrow gets too tired and needs to rest.
 
-The game uses a webcam and face detection to turn **blowing expression** into a game control.
+The game uses a webcam and face detection to turn a **blowing expression** into a game control.
 
 <img src="https://github.com/user-attachments/assets/d008a887-79b4-417a-89f5-09c6ff64ddbd" align="right" width="130">
 
