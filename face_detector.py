@@ -9,7 +9,7 @@ class FaceDetector:
             max_num_faces=1, refine_landmarks=True,
             min_detection_confidence=0.5)
     
-    def get_expression(self, frame):
+    def get_expression(self, frame): 
         rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
         results = self.face_mesh.process(rgb)
         

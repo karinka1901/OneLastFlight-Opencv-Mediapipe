@@ -3,7 +3,6 @@ import pygame
 import random
 from face_detector import FaceDetector
 
-
 class Game:
     def __init__(self, width=600, height=400):
         pygame.init()
@@ -43,7 +42,7 @@ class Game:
             pygame.transform.scale(pygame.image.load("assets/sprites/bug3.png").convert_alpha(), (30, 24)),
         ]
         self.bug_w = self.bug_images[0].get_width()
-        self.bug_h = self.bug_h = self.bug_images[0].get_height()
+        self.bug_h = self.bug_images[0].get_height()
         self.bugs = []  #all active bugs on screen
         self.bug_spawn_timer = 0
         self.bug_spawn_interval = 60  # spawn a new bug every 60 frames 
@@ -80,12 +79,30 @@ class Game:
         self.cloud_idle_img = pygame.transform.scale(pygame.image.load("assets/sprites/cloud_idle.png").convert_alpha(), (80, 55))
         self.is_blowing = False
 
-    def spawn_bug(self): #spawns bugs
+    def get_blowing_input(self):
+        blowing = False
+        ret, frame = self.camera.read()
+
+        if not ret:
+            return False
+
+        frame = cv.flip(frame, 1)
+        expression = self.detector.get_expression(frame)
+        self.detector.draw_mouth(frame)
+
+        blowing = expression == "blowing"
+
+        cv.imshow("Camera", cv.resize(frame, (150, 110)))
+        cv.waitKey(1)
+
+        return blowing
+
+    def spawn_bug(self): 
         x = random.randint(self.width - 80, self.width - 30)
         y = random.randint(15, self.height - self.bug_h - 100) #dont spawn on the bottowm of the screen
         self.bugs.append([x, y, random.randint(0, len(self.bug_images) - 1)]) 
 
-    def reset_game(self): #resets all game variables to their initial state for a new playthrough
+    def reset_game(self): 
         self.bird_y = self.height // 2
         self.velocity = 0
         self.distance = 0
@@ -164,7 +181,7 @@ class Game:
         bird_collider = pygame.Rect(self.bird_x+13, int(self.bird_y)+40, self.bird_w-30, self.bird_h-90)
         remaining_bugs = []
         for bug in self.bugs:
-            bug[0] -= self.scroll_speed  # move left with the world
+            bug[0] -= self.scroll_speed  
 
             bug_collider = pygame.Rect(bug[0], bug[1], self.bug_w, self.bug_h)
             if bird_collider.colliderect(bug_collider):
@@ -237,16 +254,7 @@ class Game:
                         self.countdown_value = 3
                         self.countdown_timer = 0
 
-            blowing = False
-            ret, frame = self.camera.read()
-            if ret:
-                frame = cv.flip(frame, 1)
-                expression = self.detector.get_expression(frame)
-                self.detector.draw_mouth(frame)
-                blowing = expression == "blowing"
-                gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-                cv.imshow("Camera", cv.resize(frame, (150, 110)))
-                cv.waitKey(1)
+            blowing = self.get_blowing_input()
             if self.game_started:
                 self.update(blowing)
             self.draw()
